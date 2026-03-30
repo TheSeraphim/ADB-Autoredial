@@ -2,6 +2,16 @@
 
 Automated redial utility with human-answer detection via Android Debug Bridge.
 
+## Quick Navigation
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [PowerShell Version](#powershell-version)
+- [Python Version](#python-version)
+- [How It Works](#how-it-works)
+- [Known Limitations](#known-limitations)
+
 ---
 
 ## Overview
