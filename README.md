@@ -6,17 +6,35 @@ Automated redial utility with human-answer detection via Android Debug Bridge.
 
 ## Overview
 
-**ADB Autoredial** is a PowerShell script that repeatedly calls a target phone number through an ADB-connected Android device, detecting whether the call was answered by a human or terminated early by an auto-attendant. It exits automatically once a genuine human answer is confirmed, and produces structured, timestamped log output throughout execution.
+**ADB Autoredial** repeatedly calls a target phone number through an ADB-connected Android device, detecting whether the call was answered by a human or terminated early by an auto-attendant. It exits automatically once a genuine human answer is confirmed (leaving the call active), and produces structured, timestamped log output throughout execution.
+
+Available in two versions:
+- **PowerShell** (`adb_autoredial.ps1`) — Windows-native
+- **Python** (`adb_autoredial.py`) — Cross-platform (Windows, Linux, macOS)
 
 ---
 
 ## Requirements
 
+### Common
+
+| Requirement | Notes |
+|---|---|
+| Android Debug Bridge | `adb` must be available in `PATH` |
+| Android device | USB debugging enabled, device authorized |
+
+### PowerShell version
+
 | Requirement | Notes |
 |---|---|
 | Windows 10 / 11 | PowerShell 5.1 or later |
-| Android Debug Bridge | `adb` must be available in `PATH` |
-| Android device | USB debugging enabled, device authorized |
+
+### Python version
+
+| Requirement | Notes |
+|---|---|
+| Python 3.7+ | No external dependencies (stdlib only) |
+| Windows / Linux / macOS | Cross-platform support |
 
 To verify ADB is available and a device is connected:
 
@@ -45,7 +63,9 @@ powershell -ExecutionPolicy Bypass -File .\adb_autoredial.ps1 -Number <number>
 
 ---
 
-## Usage
+## PowerShell Version
+
+### Usage
 
 ```powershell
 .\adb_autoredial.ps1 -Number <phone_number> [options]
@@ -101,6 +121,63 @@ powershell -ExecutionPolicy Bypass -File .\adb_autoredial.ps1 -Number <number>
   -MaxRetries 50 `
   -TimeoutCall 90 `
   -LogFile C:\logs\redial.log
+```
+
+---
+
+## Python Version
+
+Cross-platform version (Windows, Linux, macOS) with identical functionality.
+
+### Usage
+
+```bash
+python adb_autoredial.py <phone_number> [options]
+```
+
+### Parameters
+
+| Parameter | Short | Default | Description |
+|---|---|---|---|
+| `number` | — | *(required)* | Phone number to dial |
+| `--valid-after` | `-v` | `20` | Minimum call duration (seconds) to confirm human answer |
+| `--retry-delay` | `-d` | `3` | Seconds to wait between attempts |
+| `--max-retries` | `-m` | `0` (unlimited) | Maximum attempts; `0` = retry indefinitely |
+| `--timeout` | `-t` | `60` | Seconds before unanswered call is terminated |
+| `--log-file` | `-l` | *(none)* | Path to log file |
+| `--dry-run` | — | `False` | Simulate without placing real calls |
+| `--debug` | — | `False` | Show raw call state output from dumpsys |
+
+### Examples
+
+**Minimal:**
+
+```bash
+python adb_autoredial.py 039XXXXXXXX
+```
+
+**With retry limit and log file:**
+
+```bash
+python adb_autoredial.py 039XXXXXXXX -m 20 -l redial.log
+```
+
+**Custom threshold and timeout:**
+
+```bash
+python adb_autoredial.py 039XXXXXXXX -v 25 -t 90 -d 5
+```
+
+**Dry run:**
+
+```bash
+python adb_autoredial.py 039XXXXXXXX --dry-run
+```
+
+**Debug mode (shows raw dumpsys output):**
+
+```bash
+python adb_autoredial.py 039XXXXXXXX --debug
 ```
 
 ---

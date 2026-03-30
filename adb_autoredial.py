@@ -85,16 +85,26 @@ def invoke_adb(arguments: str, dry_run: bool = False) -> str:
         return ""
 
 
-def get_call_state(dry_run: bool = False) -> str:
+def get_call_state(dry_run: bool = False, debug: bool = False) -> str:
     if dry_run:
         return "NONE"
     dump = invoke_adb("shell dumpsys telecom")
-    if "STATE: ACTIVE" in dump:
+    if debug:
+        # Print all STATE: lines for debugging
+        for line in dump.splitlines():
+            if "STATE" in line.upper():
+                print(f"  [DEBUG] {line.strip()}")
+    # Check both formats: "STATE: ACTIVE" and "state=ACTIVE"
+    if "state=ACTIVE" in dump or "STATE: ACTIVE" in dump:
         return "ACTIVE"
-    if "STATE: DIALING" in dump:
+    if "state=DIALING" in dump or "STATE: DIALING" in dump:
         return "DIALING"
-    if "STATE: RINGING" in dump:
+    if "state=CONNECTING" in dump or "STATE: CONNECTING" in dump:
+        return "DIALING"
+    if "state=RINGING" in dump or "STATE: RINGING" in dump:
         return "RINGING"
+    if "state=DISCONNECTED" in dump:
+        return "NONE"
     return "NONE"
 
 
@@ -147,6 +157,10 @@ Examples:
         "--dry-run", action="store_true", dest="dry_run",
         help="Simulate without placing real calls"
     )
+    parser.add_argument(
+        "--debug", action="store_true",
+        help="Show raw call state output from dumpsys"
+    )
 
     args = parser.parse_args()
 
@@ -181,7 +195,7 @@ Examples:
         while True:
             time.sleep(1)
             elapsed_sec = int(time.time() - start_time)
-            state = get_call_state(args.dry_run)
+            state = get_call_state(args.dry_run, args.debug)
 
             if state == "ACTIVE":
                 answered = True
