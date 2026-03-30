@@ -33,13 +33,13 @@ Available in two versions:
 | Android Debug Bridge | `adb` must be available in `PATH` |
 | Android device | USB debugging enabled, device authorized |
 
-### PowerShell version
+**PowerShell:**
 
 | Requirement | Notes |
 |---|---|
 | Windows 10 / 11 | PowerShell 5.1 or later |
 
-### Python version
+**Python:**
 
 | Requirement | Notes |
 |---|---|
